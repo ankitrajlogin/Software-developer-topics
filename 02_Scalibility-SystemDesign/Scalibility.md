@@ -361,30 +361,7 @@ Architecture sketch:
 - Message Queue (Kafka) for async jobs  
 - Multi-region deployments with global routing
 
-ASCII diagram:
-    ┌───────────────────────────┐
-    │       Load Balancer       │
-    └──────────┬────────────────┘
-               │
-    ┌──────────┴───────────┐
-    │  Web / App Servers   │
-    └──────────┬───────────┘
-               │
-        ┌──────┴──────┐
-        │ Cache (Redis)│
-        └──────┬──────┘
-               │
-    ┌──────────────────────────┐
-    │ Sharded DBs + Read Replicas │
-    └──────────────────────────┘
-               │
-    ┌──────────────────────────┐
-    │ CDN + Object Storage (S3) │
-    └──────────────────────────┘
-               │
-    ┌──────────────────────────┐
-    │ Message Queue (Kafka)    │
-    └──────────────────────────┘
+
 
 ### Key takeaways
 - Start simple: vertical scaling + caching, then introduce horizontal patterns.  
