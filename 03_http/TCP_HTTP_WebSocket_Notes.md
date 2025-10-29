@@ -1,5 +1,5 @@
 
-# 🧠 Complete Notes: TCP Handshake, HTTP, and WebSocket Explained (Interview Perspective)
+# 🧠 Complete Notes: TCP Handshake, HTTP, and WebSocket
 
 ## 📘 Overview
 This document explains how **normal HTTPS requests** work internally, what the **TCP 3-way handshake** is, and how **WebSockets** (used in Socket.IO) differ. It’s written from an interview perspective — with all key details that help you answer both theoretical and practical questions.
