@@ -256,86 +256,60 @@ const fetchData = async (cursor: string | null) => {
 
 ## 🚨 Edge Cases & Solutions Matrix
 
-| Edge Case | Explanation | Solution | Example Implementation |
-|-----------|-------------|----------|----------------------|
-| **1. Duplicates on re-fetch** | Overlapping pages | Deduplicate by ID | ```typescript
-const newPosts = data.filter(post => 
-  !existingPosts.some(ep => ep.id === post.id)
-);``` |
-| **2. Missing data** | Data deleted between requests | Use cursor-based pagination | ```sql
-WHERE created_at < ? AND id < ?
-ORDER BY created_at DESC, id DESC
-``` |
-| **3. Offset performance** | Large skip is slow | Switch to cursor pagination | _See cursor implementation above_ |
-| **4. Race conditions** | Out-of-order API calls | Abort previous requests | ```typescript
-currentRequest?.abort();
-``` |
-| **5. Network failure** | Request fails | Show retry UI | ```typescript
-{error && <RetryButton onClick={retry} />}
-``` |
-| **6. Empty result** | No records | Show "No data" message | ```typescript
-{posts.length === 0 && <NoDataMessage />}
-``` |
-| **7. Token expiry** | Auth expired mid-scroll | Refresh token or re-login | ```typescript
-if (error.status === 401) {
-    await refreshToken();
-    retry();
-}
-``` |
-| **8. New data insertion** | Results shift | Use snapshot version | ```typescript
-WHERE created_at < ? AND version = ?
-``` |
-| **9. API limit exceeded** | Too many requests | Debounce scroll handler | ```typescript
-const debouncedLoad = debounce(loadMore, 250);
-``` |
-| **10. UI lag** | Large DOM | Virtualize long lists | ```typescript
-import { FixedSizeList } from 'react-window';
-``` |
-| **11. Accessibility** | Not keyboard-friendly | Add "Load more" button | ```typescript
-<button onClick={loadMore}>Load More</button>
-``` |
-| **12. SEO** | Bots can't scroll | SSR first page | ```typescript
-export async function getServerSideProps() {
-    const initialData = await fetchFirstPage();
-    return { props: { initialData } };
-}
-``` |
-| **13. Sorting changes** | Results overlap | Reset pagination | ```typescript
-const handleSortChange = () => {
-    setPosts([]);
-    setCursor(null);
-};
-``` |
-| **14. Duplicate triggers** | Multiple fires | Debounce/disconnect | ```typescript
-observer.current?.disconnect();
-``` |
-| **15. Cursor collisions** | Equal timestamps | Use compound key | ```typescript
-const cursor = `${timestamp}_${id}`;
-``` |
+### Common Edge Cases Table
 
-### Implementation Examples for Common Edge Cases
+| Edge Case | Problem | Solution | Implementation Approach |
+|-----------|---------|----------|------------------------|
+| **1. Duplicates** | Same items appear in multiple pages | Deduplicate by ID | Track seen IDs and filter |
+| **2. Missing Data** | Records deleted during pagination | Use cursor-based pagination | Include stable identifier in cursor |
+| **3. Performance** | Large offsets are slow | Switch to cursor pagination | Use indexed fields for cursors |
+| **4. Race Conditions** | Out-of-order responses | Cancel previous requests | Use AbortController |
+| **5. Network Failures** | Failed requests | Implement retry mechanism | Add retry with exponential backoff |
+| **6. Empty Results** | No data available | Show user-friendly message | Add empty state UI |
+| **7. Auth Expiry** | Token expires mid-pagination | Auto refresh token | Implement token refresh flow |
+| **8. Data Changes** | New items affect pagination | Use snapshot isolation | Include version/timestamp in queries |
+| **9. Rate Limiting** | Too many API calls | Implement throttling | Debounce scroll events |
+| **10. DOM Performance** | Too many elements rendered | Virtual scrolling | Use react-window/react-virtualized |
+| **11. Accessibility** | Not keyboard-friendly | Add button navigation | Include "Load More" button |
+| **12. SEO** | Content not indexable | Server-side render first page | Implement SSR/static generation |
+| **13. Sort/Filter** | Changes break pagination | Reset pagination state | Clear existing data on changes |
+| **14. Scroll Events** | Multiple triggers | Debounce handler | Use IntersectionObserver properly |
+| **15. Cursor Uniqueness** | Duplicate timestamps | Use compound keys | Combine timestamp with unique ID |
+
+### Implementation Examples
 
 ```typescript
-// 1. Deduplication Helper
-const deduplicateById = <T extends { id: string }>(
-    existing: T[],
-    incoming: T[]
-): T[] => {
-    const seen = new Set(existing.map(item => item.id));
-    return incoming.filter(item => !seen.has(item.id));
+// 1. Deduplication
+const deduplicateResults = (existing: Post[], incoming: Post[]): Post[] => {
+    const seen = new Set(existing.map(p => p.id));
+    return incoming.filter(p => !seen.has(p.id));
 };
 
-// 2. Race Condition Handler
-class RequestManager {
-    private currentRequest: AbortController | null = null;
+// 2. Cursor-based Query
+const getCursorQuery = (cursor: string) => {
+    const [timestamp, id] = cursor.split('_');
+    return {
+        $or: [
+            { createdAt: { $lt: new Date(timestamp) } },
+            {
+                createdAt: new Date(timestamp),
+                _id: { $lt: id }
+            }
+        ]
+    };
+};
 
-    async fetch(cursor: string) {
-        this.currentRequest?.abort();
-        this.currentRequest = new AbortController();
+// 3. Race Condition Handler
+class PaginationManager {
+    private controller: AbortController | null = null;
+
+    async fetchPage(cursor: string) {
+        this.controller?.abort();
+        this.controller = new AbortController();
 
         try {
             return await fetch(`/api/data?cursor=${cursor}`, {
-                signal: this.currentRequest.signal
+                signal: this.controller.signal
             });
         } catch (error) {
             if (error.name === 'AbortError') return null;
@@ -344,61 +318,81 @@ class RequestManager {
     }
 }
 
-// 3. Retry with Exponential Backoff
-const retryWithBackoff = async (
+// 4. Retry Logic
+const fetchWithRetry = async (
     fn: () => Promise<any>,
-    maxAttempts = 3
-) => {
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    maxRetries = 3
+): Promise<any> => {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
             return await fn();
         } catch (error) {
-            if (attempt === maxAttempts - 1) throw error;
-            await new Promise(r => 
-                setTimeout(r, Math.pow(2, attempt) * 1000)
-            );
+            if (attempt === maxRetries - 1) throw error;
+            await new Promise(r => setTimeout(r, 2 ** attempt * 1000));
         }
     }
 };
 
-// 4. Virtualized List Example
+// 5. Virtual List Implementation
 import { FixedSizeList } from 'react-window';
 
-const VirtualizedPostList: React.FC<{posts: Post[]}> = ({ posts }) => (
+const VirtualizedList: React.FC<{items: any[]}> = ({ items }) => (
     <FixedSizeList
-        height={400}
+        height={600}
         width="100%"
-        itemCount={posts.length}
+        itemCount={items.length}
         itemSize={50}
     >
         {({ index, style }) => (
-            <div style={style}>
-                {posts[index].title}
-            </div>
+            <div style={style}>{items[index].title}</div>
         )}
     </FixedSizeList>
 );
 
-// 5. Debounced Scroll Handler
-import { debounce } from 'lodash';
+// 6. Debounced Scroll Handler
+const useDebounced = (callback: () => void, delay: number) => {
+    const timeoutRef = useRef<NodeJS.Timeout>();
 
-const debouncedLoadMore = debounce((callback: () => void) => {
-    callback();
-}, 250, { leading: true, trailing: false });
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
+
+    return useCallback(() => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(callback, delay);
+    }, [callback, delay]);
+};
 ```
 
-### Best Practices for Edge Case Handling
+### Best Practices for Edge Cases
 
-1. Always implement deduplication
-2. Use compound keys for cursor pagination
-3. Implement proper error boundaries
-4. Add retry logic with backoff
-5. Consider accessibility requirements
-6. Monitor and log edge case occurrences
-7. Test with large datasets
-8. Implement proper loading states
-9. Handle network errors gracefully
-10. Consider SEO implications
+1. **Data Consistency**
+   - Always use stable identifiers in cursors
+   - Include version/timestamp for snapshot isolation
+   - Handle data changes gracefully
+
+2. **Performance**
+   - Implement virtual scrolling for large lists
+   - Use proper indexes for cursor fields
+   - Cache results when appropriate
+
+3. **User Experience**
+   - Show loading states
+   - Provide clear error messages
+   - Add retry mechanisms
+   - Consider accessibility
+
+4. **Error Handling**
+   - Implement proper error boundaries
+   - Add retry logic with backoff
+   - Handle network failures gracefully
+   - Monitor error rates
 
 ## 📊 7. Best Practices
 
