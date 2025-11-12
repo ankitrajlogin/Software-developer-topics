@@ -194,17 +194,92 @@ Processes are permanently assigned to one queue based on a specific property suc
 | Q2        | Interactive / User | Round Robin (RR)     | Medium   |
 | Q3        | Batch / Background | FCFS                 | Lowest   |
 
+<p align="center">
+    <img src="./MLQ.png" alt="Process State" />
+</p>
 
 **Working:**
-- CPU executes jobs from **Q1** first.
-- Only if Q1 is empty, **Q2** processes get CPU.
+1. The system maintains multiple ready queues.
 
-**Advantages:**
-- Simple and logical process separation.
+2. Each process is assigned permanently to one queue.
+
+3. CPU scheduling is done in two levels:
+    - *Between Queues:*  
+    A fixed priority is assigned to each queue. Higher-priority queues get the CPU first.       
+    (e.g., Q1 > Q2 > Q3)
+
+    - Within a Queue:  
+    Each queue uses its own scheduling algorithm.
+    (e.g., Q1 uses RR, Q3 uses FCFS)
+
+4. A lower-priority queue gets CPU time only if all higher-priority queues are empty.
+
+**Advantages:**  
+- **Rigid**: Processes are permanently assigned to queues — no movement between queues.
+- **Starvation**: Low-priority queues may never get CPU if high-priority queues are always busy.
+- **Less flexible** compared to modern scheduling models.- Different scheduling policies can be applied to different process groups.
+
 
 **Disadvantages:**
 - Rigid (no movement between queues)
-- Starvation possible for low-priority queues
+- Starvation possible for low-priority 
+
+
+### **IMPORTANT TERM :**  
+#### **1. System Processes**:   
+System processes are kernel-level or background processes that perform essential tasks required by the operating system to function properly.
+They are usually managed by the OS and not by users.
+
+➡️ Characteristics:
+- High priority (often real-time or near real-time).
+- Always running in the background.
+- No user interaction.
+- Examples: init, systemd, memory manager, device driver, scheduler, etc.
+
+➡️ Example:
+- The scheduler itself is a system process.
+- The disk manager or file system daemon that handles disk access requests.
+
+🧠 Think of them as the “backbone services” that keep the system alive.
+
+
+#### **2. Interactive Processes**
+Interactive processes are user-driven — they require frequent input and output (I/O) operations and direct interaction with the user.
+
+➡️ Characteristics:
+- Need quick responses (low latency).
+- Often short CPU bursts followed by I/O waits.
+- High priority because users expect responsiveness.
+- Examples: text editors, browsers, terminal commands, IDEs, etc.
+
+➡️ Example:
+- When you type in a code editor, each keystroke triggers an interactive process that updates the screen immediately.
+
+🧠 Think: “User-facing and response-sensitive.”
+
+#### **3. Batch Processes**
+
+Batch processes are non-interactive — they do not require user input once they start.
+They run in the background and complete when their task finishes.
+
+➡️ Characteristics:
+- Long-running jobs.
+- No need for immediate output.
+- Usually scheduled when system load is low.
+- Often lower priority than interactive or system processes.
+- Examples: backups, compilers, data processing scripts, report generation.
+
+➡️ Example:
+- A nightly backup job or a Python script processing large datasets are batch processes.
+
+🧠 Think: “Fire and forget” — runs independently until done.
+
+#### Comparison Summary
+| Type of Process         | Description                | Priority  | User Interaction | Example                  |
+| ----------------------- | -------------------------- | --------- | ---------------- | ------------------------ |
+| **System Process**      | Handles OS-level tasks     | Very High | None             | Scheduler, Device driver |
+| **Interactive Process** | Requires user input/output | High      | Frequent         | Text editor, Browser     |
+| **Batch Process**       | Runs without user input    | Low       | None             | Backup job, Data script  |
 
 ---
 
@@ -212,12 +287,17 @@ Processes are permanently assigned to one queue based on a specific property suc
 
 **Type:** Preemptive  
 **Concept:**  
-A process **can move between queues** based on its CPU usage and behavior.
+Multilevel Feedback Queue Scheduling is an improved and flexible version of MLQ.  
+Here, a process can move between queues based on its behavior and execution history.
 
-**Idea:**
-- Short jobs stay in high-priority queues.  
-- Long jobs move down to lower queues.  
-- Waiting processes can move up (aging).
+It dynamically adjusts process priority depending on how much CPU time it has consumed —
+- Interactive processes get higher priority,
+- CPU-bound processes gradually move to lower queues.
+
+**Main Idea**
+- If a process uses too much CPU time, it’s moved to a lower-priority queue.
+- If a process waits too long, it’s moved to a higher-priority queue (to prevent starvation).
+- Each queue may have its own scheduling algorithm and time quantum.
 
 **Example Setup:**
 
@@ -227,11 +307,19 @@ A process **can move between queues** based on its CPU usage and behavior.
 | Q2 | Round Robin | 8 ms | Medium |
 | Q3 | FCFS | — | Lowest |
 
+
+<p align="center">
+    <img src="./MLFQ.png" alt="Process State" />
+</p>
+
 **Working:**
-1. New process enters **Q1**.  
-2. If it uses up 4 ms → moved to **Q2**.  
-3. If it uses up 8 ms → moved to **Q3**.  
-4. Aging ensures no starvation.
+1. New process enters the highest priority queue (Q1).
+2. It gets CPU for time quantum = 4 ms.
+    -  If it finishes → done ✅
+    -  If not → moved to next lower queue (Q2).
+3. In Q2, it gets a larger quantum (8 ms).
+    -  If it still doesn’t finish → moved to Q3 (FCFS).
+4. Long waiting processes can be moved upward (aging) to prevent starvation.
 
 **Advantages:**
 - Dynamic and fair  
@@ -242,36 +330,70 @@ A process **can move between queues** based on its CPU usage and behavior.
 - Complex to implement and tune
 - Overhead of managing multiple queues
 
+
+#### **Comparison of MLQ vs MLFQ**
+
+| Feature              | **Multilevel Queue (MLQ)** | **Multilevel Feedback Queue (MLFQ)** |
+| -------------------- | -------------------------- | ------------------------------------ |
+| **Process Movement** | No (fixed queues)          | Yes (dynamic movement)               |
+| **Flexibility**      | Low                        | High                                 |
+| **Starvation**       | Possible                   | Avoided (using aging)                |
+| **Implementation**   | Simple                     | Complex                              |
+| **Scheduling Basis** | Static priority            | Dynamic priority                     |
+| **Use Case**         | Simple systems             | Modern OS (Windows, Linux)           |
+
+
 ---
 
 ### 8. **Highest Response Ratio Next (HRRN)**
 
-**Type:** Non-Preemptive  
+**Type:** Non-Preemptive   
+
+**Concept:**
+Highest Response Ratio Next (HRRN) is a non-preemptive CPU scheduling algorithm that selects the process with the highest response ratio for execution next.  
+
+It’s designed to reduce starvation and balance between short and long processes — improving over Shortest Job Next (SJN).   
+
+🧠 The longer a process waits, the higher its RR becomes — meaning old processes get a chance to run soon (avoiding starvation).  
+
 **Formula:**
-\[
+$$
 \text{Response Ratio} = \frac{\text{Waiting Time} + \text{Burst Time}}{\text{Burst Time}}
-\]
+$$
+
 
 **Working:**
-Selects the process with the **highest response ratio** next.
+1. At each scheduling decision point:
+    - Calculate Response Ratio (RR) for all ready processes.
+    - Choose the process with highest RR.
+    
+2. Run that process non-preemptively (till completion).
+3. Update waiting times and repeat the selection.
 
 **Advantages:**
-- Reduces starvation (balances short and long jobs)
+- Prevents starvation (unlike SJF).
+- Balances between short and long processes.
+- Gives fair response time for all.
+
+**Disadvantages**
+- More complex than FCFS/SJF due to ratio calculation.
+- Not preemptive, so a long process can still block short ones temporarily.
+- Hard to implement efficiently for large systems.
 
 ---
 
 ## ⚡ Comparison of Scheduling Algorithms
 
-| Algorithm | Type | Preemptive | Starvation | Suitable For |
-|------------|------|-------------|-------------|---------------|
-| **FCFS** | Non-Preemptive | ❌ | ✅ | Batch systems |
-| **SJF** | Non-Preemptive | ❌ | ✅ | Batch systems |
-| **SRTF** | Preemptive | ✅ | ✅ | Short jobs |
-| **Priority** | Both | ✅ / ❌ | ✅ | Mixed workloads |
-| **RR** | Preemptive | ✅ | ❌ | Time-sharing systems |
-| **MLQ** | Non-Preemptive | ❌ | ✅ | Multi-type processes |
-| **MLFQ** | Preemptive | ✅ | ❌ | Modern OS |
-| **HRRN** | Non-Preemptive | ❌ | ❌ | Balanced workloads |
+| Algorithm                     | Type           | Preemptive | Criteria         | Starvation | Suitable For         |
+| ----------------------------- | -------------- | ---------- | ---------------- | ---------- | -------------------- |
+| **FCFS**                      | Non-Preemptive | ❌          | Arrival Time     | ✅          | Batch Systems        |
+| **SJF**                       | Non-Preemptive | ❌          | Burst Time       | ✅          | Batch Systems        |
+| **SRTF**                      | Preemptive     | ✅          | Remaining Time   | ✅          | Short Jobs           |
+| **Priority**                  | Both           | ✅ / ❌      | Priority         | ✅          | Mixed Systems        |
+| **RR**                        | Preemptive     | ✅          | Time Quantum     | ❌          | Time-Sharing Systems |
+| **Multilevel Queue**          | Non-Preemptive | ❌          | Queue Type       | ✅          | Mixed Environments   |
+| **Multilevel Feedback Queue** | Preemptive     | ✅          | Dynamic Priority | ❌          | General Purpose      |
+| **HRRN**                      | Non-Preemptive | ❌          | Response Ratio   | ❌          | Batch & Interactive  |
 
 ---
 
