@@ -257,21 +257,21 @@ Each resource node may have dots inside representing the number of instances of 
 
 <h3 align="center">Resource Allocation Graph (RAG)</h3>
 <p align="center">
-  <img src="image-2.png" width="350">
+  <img src="RAG.png" width="350">
 </p>
 
 ---
 
 <h3 align="center">Single Instance Resource Type – Deadlock Example</h3>
 <p align="center">
-  <img src="image.png" width="350">
+  <img src="deadlockSingleInstance.png" width="350">
 </p>
 
 ---
 
 <h3 align="center">Multiple Instance Resource Type – Cycle Exists but No Deadlock</h3>
 <p align="center">
-  <img src="image-1.png" width="350">
+  <img src="MultiInstance.png" width="350">
 </p>
 
 
@@ -283,7 +283,6 @@ For multiple-instance resources, a cycle may indicate potential deadlock, requir
 ```
 
 ---
-# Banker's Algorithm – Complete Notes (Markdown)
 
 ## 🏦 Banker’s Algorithm — Operating System
 
@@ -466,10 +465,8 @@ Available = 10 − (5 + 2) = **3**
 
 
 ---
-# Deadlock Prevention – Resource Requirement Formulas  
-### (With Proof + Layman Explanation)
+## Deadlock Prevention – Resource Requirement Formulas  
 
----
 
 ## ✅ QUESTION 1
 If there are **p processes** and each process requires **k units** of a single resource type, what is the **minimum number of resource units (R)** required so that deadlock can never occur?
