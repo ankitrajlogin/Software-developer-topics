@@ -244,9 +244,9 @@ Writer() {
 - Each philosopher alternates between thinking and eating.
 - There are five forks (shared resources), and a philosopher needs two forks to eat.
 
-#### ⚠️ Issues:
+#### ⚠️ Issues: 
 
-If all philosophers pick up their left fork first, deadlock occurs (each holds one fork and waits forever for the other).
+If all philosophers pick up their left fork first, deadlock occurs (each holds one fork and waits forever for the other). 
 
 #### ✅ Solution using Semaphores:
 
