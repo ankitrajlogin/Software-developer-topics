@@ -1,6 +1,5 @@
 # 🧠 Operating System Notes — CPU Scheduling (Complete Notes)
 
----
 
 ## 🧩 What is CPU Scheduling?
 
@@ -78,8 +77,6 @@ Since multiple processes may be in the ready queue, the OS must decide the order
 ---
 
 ## 🧾 Types of CPU Scheduling Algorithms
-
----
 
 ### 1. **First Come First Serve (FCFS)**
 
@@ -200,9 +197,7 @@ Processes are permanently assigned to one queue based on a specific property suc
 
 **Working:**
 1. The system maintains multiple ready queues.
-
 2. Each process is assigned permanently to one queue.
-
 3. CPU scheduling is done in two levels:
     - *Between Queues:*  
     A fixed priority is assigned to each queue. Higher-priority queues get the CPU first.       
@@ -211,7 +206,6 @@ Processes are permanently assigned to one queue based on a specific property suc
     - Within a Queue:  
     Each queue uses its own scheduling algorithm.
     (e.g., Q1 uses RR, Q3 uses FCFS)
-
 4. A lower-priority queue gets CPU time only if all higher-priority queues are empty.
 
 **Advantages:**  

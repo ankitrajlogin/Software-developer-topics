@@ -15,9 +15,8 @@ Here’s the complete list of process states:
 | Suspended Wait    | Process is waiting and swapped out of memory      |
 | Terminated        | Process has completed or been killed              |
 
-```
-The Operating System keeps track of each process’s current state using a data structure called the Process Control Block (PCB).
-```
+
+    The Operating System keeps track of each process’s current state using a data structure called the Process Control Block (PCB).
 
 Have a look at the diagram below for a visual representation of these states and their transitions:
 ![Process State](Process_State_Diagram.png)

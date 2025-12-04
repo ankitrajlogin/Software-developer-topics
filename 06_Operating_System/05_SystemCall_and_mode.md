@@ -1,14 +1,6 @@
 # System Calls & Modes
 
-## Table of Contents
-- [What is a System Call?](#what-is-a-system-call)
-- [Example (read file)](#example-read-file)
-- [User Mode vs Kernel Mode](#user-mode-vs-kernel-mode)
-- [Types of System Calls](#types-of-system-calls)
-- [Summary Table](#summary-table)
-- [In Short](#in-short)
 
----
 
 ## 🧠 What is a System Call?
 
@@ -60,9 +52,8 @@ System calls are generally divided into five major categories:
 
 
 **In Short:**
-```
-System calls act as a bridge between user programs and the kernel, allowing controlled access to the system’s resources like files, devices, and processes.
-```
+
+    System calls act as a bridge between user programs and the kernel, allowing controlled access to the system’s resources like files, devices, and processes.
 
 ## Kernel 
 A Kernel is the core part of an Operating System (OS) — it acts as a bridge between the hardware and user-level applications.
@@ -73,10 +64,10 @@ It manages all system resources such as:
 - System calls (communication between user programs and hardware)
 
 Simply put:
-```
-🧩 The kernel is the heart of the operating system — without it, your computer cannot function.
-```
 
+    The kernel is the heart of the operating system — without it, your computer cannot function.
+
+---
 
 
 # 🧠 User Mode vs Kernel Mode

@@ -245,7 +245,6 @@ Writer() {
 - There are five forks (shared resources), and a philosopher needs two forks to eat.
 
 #### ⚠️ Issues: 
-
 If all philosophers pick up their left fork first, deadlock occurs (each holds one fork and waits forever for the other). 
 
 #### ✅ Solution using Semaphores:
