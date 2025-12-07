@@ -19,6 +19,18 @@ A **Database Management System (DBMS)** is software that allows users to define,
 | “25”      | Could be age, price, marks |
 | “Patna”   | Could be birthplace, location |
 
+
+### Types of Data   
+
+**a. Quantitative**             
+&nbsp; &nbsp; &nbsp; i. Numerical form   
+&nbsp; &nbsp; &nbsp; ii. Weight, volume, cost of an item.
+
+**b. Qualitative**             
+&nbsp; &nbsp; &nbsp; i. Descriptive, but not numerical.  
+&nbsp; &nbsp; &nbsp; ii. Name, gender, hair color of a person.
+
+
 ---
 
 ## ✅ 2. Information
@@ -49,7 +61,7 @@ Example: A library catalog, an employee record system, or an online shopping inv
 
 ###  Example of a Database
 
-### Student Database
+### Student Database        
 - Contains roll no, name, marks, attendance.
 
 ### Banking Database
