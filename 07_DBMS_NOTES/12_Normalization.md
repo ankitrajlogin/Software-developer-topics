@@ -89,7 +89,11 @@ When a table is not normalized, it causes errors called **anomalies**.
    - Deleting one row causes unwanted loss of data.  
    **Example:** Deleting the last student in a course → course data also gets lost.
 
----
+
+```
+Due to these anomalies, DB size increases and DB performance become very slow.
+To rectify these anomalies and the effect of these of DB, we use Database optimisation technique called
+```
 
 ## ⭐ 4. Types of Normal Forms
 
@@ -149,6 +153,8 @@ Split multivalued phone numbers into separate rows.
 #### Rule of 2NF:
 1. Must be in **1NF**.  
 2. No **Partial Functional Dependency** (Non-key attribute must depend on the whole primary key).
+
+**In 2NF, no attribute (column) should be partially dependent on the primary key.**
 
 #### Composite Primary Key in our table:
 ```
@@ -214,8 +220,11 @@ These are OK because:
 ### ✅ BCNF — Boyce-Codd Normal Form
 
 #### Rule of BCNF:
-For every functional dependency A → B:  
+1. Must be in 3NF
+2. For every functional dependency A → B:  
 👉 A must be a **superkey**.
+
+- **A superkey is any column or group of columns that can uniquely identify a row in a table.**
 
 #### Check FD in each table:
 
@@ -231,21 +240,79 @@ For every functional dependency A → B:
    Key = `(StudentID, Course, PhoneNumber)`  
    No FD violates BCNF.
 
-💡 **Tables are now in BCNF.**
+#### **Another Example** : 
+
+✅ Simple Example (Most Common BCNF Example)        
+
+❌ **Table NOT in BCNF**
+| Course | Teacher | Room |
+| ------ | ------- | ---- |
+| DBMS   | Raman   | 201  |
+| OS     | Ravi    | 202  |
+| DBMS   | Raman   | 201  |
+
+
+#### Functional Dependencies     
+**Course** → Room (every course has a fixed room)       
+**Room** → Teacher (every room has a fixed teacher)
+
+Candidate key = Course      
+(because course uniquely identifies the row)
+
+**But look carefully:**     
+**Room** → Teacher violates BCNF        
+because Room is NOT a superkey      
+(room alone cannot uniquely identify the row)
+
+Thus, table is NOT in BCNF.
+
+⭐ **How to Fix (Convert to BCNF)**     
+#### Decompose into two tables:      
+**Table 1: Course → Room**
+| Course | Room |
+| ------ | ---- |
+| DBMS   | 201  |
+| OS     | 202  |
+
+**Table 2: Room → Teacher**
+| Room | Teacher |
+| ---- | ------- |
+| 201  | Raman   |
+| 202  | Ravi    |
+
+Now:
+
+In Table 1 → Course is the key  
+In Table 2 → Room is the key
+
+👉 **All determinants are superkeys → BCNF achieved.**
 
 ---
 
 ### ✅ 4NF — Fourth Normal Form
 
 #### Rule of 4NF:
-Removes **Multi-valued Dependencies (MVD)**.  
+- It is already in BCNF
+- It does not contain any multi-valued dependencies (MVDs)
+
+<br>
+Removes Multi-valued Dependencies (MVD) .         
+
 ```
 A →→ B (independent multi-valued attributes)
 ```
 
+**Multi-Valued Dependency (MVD)** : Occurs when one attribute in a table determines multiple independent values of another attribute, independently of other attributes.
+
 #### Check table 3 (STUDENT_COURSE_PHONE):
 | **StudentID** | **Course** | **Phone** |
 |---------------|------------|-----------|
+| 101           | DBMS       |  9876     |
+| 101           | DBMS       |  8888     |
+| 101           | OS         |  9876     |
+| 101           | OS         |  8888     |
+| 102           | DBMS       |  9999     |
+
 
 Here:
 - A student has multiple phones.  
@@ -316,12 +383,24 @@ Split into two tables:
 
 ## ⭐ Short Summary (Very Easy)
 
-| **NF**   | **Removes**               | **Example Problem**                     |
-|----------|---------------------------|-----------------------------------------|
-| **1NF**  | Multi-valued attributes   | Phone = 9876,8888                       |
-| **2NF**  | Partial dependencies      | StudentName depends only on StudentID   |
-| **3NF**  | Transitive dependencies   | Course → Instructor                     |
-| **BCNF** | Non-superkey determinants | Strict 3NF                              |
-| **4NF**  | Multi-valued dependency   | Student →→ Phone, Course                |
+| **NF**   | **What is removed?**           | **Fix**                         | **Meaning (Layman Explanation)**                                                                                      |
+| -------- | ------------------------------ | ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **1NF**  | Multi-valued, repeating groups | Make values atomic              | Every cell must have only **one value**, not lists, not repeated items                                                |
+| **2NF**  | Partial dependency             | Split based on full key         | A non-key column must **depend on the entire primary key**, not just part of it                                       |
+| **3NF**  | Transitive dependency          | Split tables further            | A non-key column must depend **only on the primary key**, not on another non-key column                               |
+| **BCNF** | Non-superkey dependency        | Ensure LHS of FD is key         | Every determinant must be a **candidate key**; no column should control another unless it is a key                    |
+| **4NF**  | Multi-valued dependency        | Separate independent attributes | A table should not contain **two independent multi-valued facts** about the same key                                  |
+| **5NF**  | Join dependency                | Break into smallest tables      | A table should not have hidden dependencies that require **multiple tables to be recombined** to get full information |
+
 
 ---
+
+
+## Quick Meaning
+| Term                              | Meaning                                                                          |
+| --------------------------------- | -------------------------------------------------------------------------------- |
+| **Partial dependency**            | A column depends on only **part of a composite key**                             |
+| **Transitive dependency**         | A column depends on another **non-key column**, not directly on primary key      |
+| **Non-superkey dependency**       | A non-key attribute determines other attributes                                  |
+| **Multi-valued dependency (MVD)** | A record contains **two or more independent lists**                              |
+| **Join dependency**               | Table can only be reconstructed correctly after joining **more than two tables** |

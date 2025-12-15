@@ -200,7 +200,13 @@ These tell how many entities can participate.
 | **Primary key attribute** | Underlined          |
 | **Partial key**         | Dashed underline      |
 
----
+
+<br>
+<p align="center">
+  <img src="./ER-diagram.png" width="400">
+  <br>
+  <em>Figure 1: ER Notation</em>
+</p>
 
 ### ⭐ SHORT SUMMARY (Very Easy Remembering)
 
