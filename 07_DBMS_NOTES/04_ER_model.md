@@ -1,7 +1,9 @@
+
+
+# ⭐ Entity–Relationship (ER) Model
+
 **Data Model**: Collection of conceptual tools for describing data, data relationships, data semantics, and consistency
 constraints.
-
-## ⭐ Entity–Relationship (ER) Model
 
 The ER Model (Entity–Relationship Model) is a conceptual data model used to design and represent the structure of a database.  
      
@@ -11,10 +13,10 @@ It shows:
 - Relationships (how entities are connected)
 - This model is usually represented using an ER Diagram (ERD).
 
----
+***Graphical representation of ER Model is ER diagram, which acts as a blueprint of DB.***
 
-## ⭐ ENTITY–RELATIONSHIP (ER) MODEL
 
+**In Simple Words** :    
 The **ER Model** is a way to visually design a database using:
 - **Entities** (things),
 - **Attributes** (details of things), and
@@ -24,7 +26,7 @@ It helps in converting real-world data into a database structure.
 
 ---
 
-### 🔹 1. ENTITY
+## 🔹 1. ENTITY
 An **entity** is any real-world object that can be identified clearly.
 
 #### Examples
@@ -32,7 +34,7 @@ An **entity** is any real-world object that can be identified clearly.
 
 --- 
 
-#### **ENTITY SET**
+### **ENTITY SET**
 An **entity set** is a collection of similar entities.
 
 #### Examples
@@ -41,7 +43,7 @@ An **entity set** is a collection of similar entities.
 
 --- 
 
-#### **TYPES OF ENTITIES**
+### **TYPES OF ENTITIES**
 
 #### a) Strong Entity
 - Has a **primary key** (unique attribute).
@@ -63,14 +65,20 @@ Student(id, name, age)
 
 **Example:**
 ```
-Dependent(name, age) depends on Employee.
+Loan -> Strong Entity, Payment -> Weak, as instalments are sequential number counter can be generated separate for each loan.
 ```
-Many employees may have dependents named “Rahul”.
+***Weak entity depends on strong entity for existence.****
 
 **ER Notation:**
 - Double rectangle for weak entity.
 - Double diamond for weak relationship.
 
+<br>
+<p align="center">
+  <img src="./weak-vs-strong-entity.png" width="400">
+  <br>
+  <em>Figure 1: ER Notation</em>
+</p>
 ---
 
 ### 🔹 2. ATTRIBUTES
@@ -145,6 +153,12 @@ A **relationship** shows how two entities are connected.
 | **Binary (2)**| Between two entities         | Student – Enroll – Course.                   |
 | **Ternary (3)**| Three entities              | Supplier – Supplies – Product through Warehouse. |
 
+<br>
+<p align="center">
+  <img src="./relationship-set.png" width="400">
+  <br>
+  <em>Figure 1: Relationship Set</em>
+</p>
 ---
 
 ### 🔹 4. RELATIONSHIP CONSTRAINTS
@@ -183,32 +197,66 @@ These tell how many entities can participate.
    **Notation:** Single line.  
    **Example:** Not every employee must have a project.
 
----
+**NOTE :** 
+- Double line (══) → Full participation
+- Single line (—) → Partial participation
 
-### 🔹 5. ER NOTATIONS (SUMMARY)
+<br>
+<p align="center">
+  <img src="./relationship-participation.png" width="400">
+  <br>
+  <em>Figure 2: Participation</em>
+</p>
 
-| **Component**          | **Notation**          |
-|-------------------------|-----------------------|
-| **Strong Entity**       | Rectangle             |
-| **Weak Entity**         | Double rectangle      |
-| **Relationship**        | Diamond               |
-| **Weak relationship**   | Double diamond        |
-| **Attribute**           | Oval                  |
-| **Derived Attribute**   | Dashed oval           |
-| **Multi-valued Attribute** | Double oval         |
-| **Entity Set**          | Rectangle             |
-| **Primary key attribute** | Underlined          |
-| **Partial key**         | Dashed underline      |
+---- 
 
+### 🔹 5. ER NOTATIONS 
+| **Component**                       | **Notation**                | **Meaning / Description**                                     |
+| ----------------------------------- | --------------------------- | ------------------------------------------------------------- |
+| **Entity**                          | Rectangle                   | Represents a real-world object (e.g., Student, Course)        |
+| **Weak Entity**                     | Double Rectangle            | Entity that depends on another entity for identification      |
+| **Attribute**                       | Oval                        | Property of an entity (e.g., Name, Age)                       |
+| **Key Attribute**                   | Underlined Oval             | Uniquely identifies an entity                                 |
+| **Composite Attribute**             | Oval connected to sub-ovals | Attribute made of smaller parts (e.g., Address → City, State) |
+| **Multivalued Attribute**           | Double Oval                 | Attribute with multiple values (e.g., Phone Numbers)          |
+| **Derived Attribute**               | Dashed Oval                 | Attribute derived from another (e.g., Age from DOB)           |
+| **Relationship**                    | Diamond                     | Association between entities                                  |
+| **Identifying Relationship**        | Double Diamond              | Relationship connecting weak entity to owner                  |
+| **Cardinality**                     | 1:1, 1:N, M:N near line     | Number of entities involved in a relationship                 |
+| **Participation (Partial)**         | Single Line (—)             | Participation is optional                                     |
+| **Participation (Full/Total)**      | Double Line (══)            | Participation is mandatory                                    |
+| **Generalization / Specialization** | Triangle (ISA)              | Inheritance relationship                                      |
+| **Aggregation**                     | Box enclosing relationship  | Treats relationship as higher-level entity                    |
 
 <br>
 <p align="center">
   <img src="./ER-diagram.png" width="400">
   <br>
-  <em>Figure 1: ER Notation</em>
+  <em>Figure 3: ER Notation</em>
 </p>
 
-### ⭐ SHORT SUMMARY (Very Easy Remembering)
+---
+
+### Line Types in ER Diagram (Very Important ⭐)
+| **Line Type**                                      | **Meaning**                                            |
+| -------------------------------------------------- | ------------------------------------------------------ |
+| **Single Line (—)**                                | **Partial Participation** (may or may not participate) |
+| **Double Line (══)**                               | **Full / Total Participation** (must participate)      |
+| **Dashed Line**                                    | Derived attribute                                      |
+| **Double Line between weak entity & relationship** | Identifying relationship                               |
+
+
+<br>
+<p align="center">
+  <img src="./Line-relationship.png" width="400">
+  <br>
+  <em>Figure 4: Line Relationship</em>
+</p>
+
+
+---
+
+### ⭐ SHORT SUMMARY 
 
 - **Entity** → Real-world object.  
 - **Entity Set** → Group of similar entities.  
